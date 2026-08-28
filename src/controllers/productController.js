@@ -1,13 +1,18 @@
-const { Product } = require('../models');
+const { Product, Category } = require('../models');
 const { paginate } = require('../services/paginationService');
 
 /**
- * Retorna todos os produtos de forma paginada.
+ * Retorna todos os produtos de forma paginada com suas respectivas categorias.
  */
 const getAllProducts = async (req, res) => {
   try {
     const { page, limit } = req.query;
     const result = await paginate(Product, page, limit, {
+      include: [{
+        model: Category,
+        as: 'category',
+        attributes: ['id', 'name']
+      }],
       order: [['id', 'ASC']]
     });
     return res.status(200).json(result);
@@ -17,12 +22,18 @@ const getAllProducts = async (req, res) => {
 };
 
 /**
- * Retorna um produto específico pelo ID.
+ * Retorna um produto específico pelo ID, contendo suas informações de categoria.
  */
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findByPk(id);
+    const product = await Product.findByPk(id, {
+      include: [{
+        model: Category,
+        as: 'category',
+        attributes: ['id', 'name']
+      }]
+    });
     
     if (!product) {
       return res.status(404).json({ message: 'Produto não encontrado.' });
@@ -35,13 +46,30 @@ const getProductById = async (req, res) => {
 };
 
 /**
- * Cria um novo produto com validações.
+ * Cria um novo produto com validações de dados e de categoria.
  */
 const createProduct = async (req, res) => {
   try {
-    const { name, price, description } = req.body;
-    const product = await Product.create({ name, price, description });
-    return res.status(201).json(product);
+    const { name, price, description, categoryId } = req.body;
+    
+    if (categoryId) {
+      const categoryExists = await Category.findByPk(categoryId);
+      if (!categoryExists) {
+        return res.status(400).json({ error: 'A categoria informada não existe.' });
+      }
+    }
+
+    const product = await Product.create({ name, price, description, categoryId });
+    
+    const productWithCategory = await Product.findByPk(product.id, {
+      include: [{
+        model: Category,
+        as: 'category',
+        attributes: ['id', 'name']
+      }]
+    });
+
+    return res.status(201).json(productWithCategory);
   } catch (error) {
     if (error.name === 'SequelizeValidationError') {
       const messages = error.errors.map(err => err.message);
@@ -52,20 +80,36 @@ const createProduct = async (req, res) => {
 };
 
 /**
- * Atualiza os campos de um produto existente.
+ * Atualiza os campos de um produto existente, validando a categoria se fornecida.
  */
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description } = req.body;
+    const { name, price, description, categoryId } = req.body;
     
     const product = await Product.findByPk(id);
     if (!product) {
       return res.status(404).json({ message: 'Produto não encontrado.' });
     }
     
-    await product.update({ name, price, description });
-    return res.status(200).json(product);
+    if (categoryId) {
+      const categoryExists = await Category.findByPk(categoryId);
+      if (!categoryExists) {
+        return res.status(400).json({ error: 'A categoria informada não existe.' });
+      }
+    }
+
+    await product.update({ name, price, description, categoryId });
+
+    const productWithCategory = await Product.findByPk(product.id, {
+      include: [{
+        model: Category,
+        as: 'category',
+        attributes: ['id', 'name']
+      }]
+    });
+
+    return res.status(200).json(productWithCategory);
   } catch (error) {
     if (error.name === 'SequelizeValidationError') {
       const messages = error.errors.map(err => err.message);

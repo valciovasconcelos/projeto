@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const productRoutes = require('./productRoutes');
+const categoryRoutes = require('./categoryRoutes');
 
 // Rotas da API
 router.use('/products', productRoutes);
+router.use('/categories', categoryRoutes);
 
 // Rota de Health Check (Verificação de Integridade)
 router.get('/health', (req, res) => {
