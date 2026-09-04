@@ -1,19 +1,43 @@
 const { Product, Category } = require('../models');
 const { paginate } = require('../services/paginationService');
+const { Op } = require('sequelize');
 
 /**
- * Retorna todos os produtos de forma paginada com suas respectivas categorias.
+ * Retorna todos os produtos de forma paginada com suas respectivas categorias,
+ * suportando busca por nome, filtro por categoria, faixa de preço e ordenação.
  */
 const getAllProducts = async (req, res) => {
   try {
-    const { page, limit } = req.query;
+    const { page, limit, search, categoryId, minPrice, maxPrice, sortBy = 'id', order = 'ASC' } = req.query;
+
+    const where = {};
+
+    if (search) {
+      where.name = { [Op.like]: `%${search}%` };
+    }
+
+    if (categoryId) {
+      where.categoryId = Number(categoryId);
+    }
+
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price[Op.gte] = Number(minPrice);
+      if (maxPrice) where.price[Op.lte] = Number(maxPrice);
+    }
+
+    const validSortFields = ['id', 'name', 'price', 'createdAt'];
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'id';
+    const sortOrder = order.toString().toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
     const result = await paginate(Product, page, limit, {
+      where,
       include: [{
         model: Category,
         as: 'category',
         attributes: ['id', 'name']
       }],
-      order: [['id', 'ASC']]
+      order: [[sortField, sortOrder]]
     });
     return res.status(200).json(result);
   } catch (error) {
