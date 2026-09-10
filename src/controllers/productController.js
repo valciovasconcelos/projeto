@@ -162,10 +162,50 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+/**
+ * Retorna estatísticas consolidadas dos produtos.
+ */
+const getProductStats = async (req, res) => {
+  try {
+    const totalProducts = await Product.count();
+    const minPrice = (await Product.min('price')) || 0;
+    const maxPrice = (await Product.max('price')) || 0;
+    const sumPrice = (await Product.sum('price')) || 0;
+    const avgPrice = totalProducts > 0 ? (sumPrice / totalProducts).toFixed(2) : 0;
+
+    const categoriesWithCount = await Category.findAll({
+      attributes: [
+        'id',
+        'name',
+        [Product.sequelize.fn('COUNT', Product.sequelize.col('products.id')), 'productCount']
+      ],
+      include: [{
+        model: Product,
+        as: 'products',
+        attributes: []
+      }],
+      group: ['Category.id', 'Category.name']
+    });
+
+    return res.status(200).json({
+      totalProducts,
+      totalInventoryValue: parseFloat(Number(sumPrice).toFixed(2)),
+      averagePrice: parseFloat(avgPrice),
+      minPrice: parseFloat(Number(minPrice).toFixed(2)),
+      maxPrice: parseFloat(Number(maxPrice).toFixed(2)),
+      categoriesSummary: categoriesWithCount
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductStats
 };
+

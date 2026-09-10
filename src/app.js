@@ -2,13 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
+const logger = require('./middlewares/logger');
 
 const app = express();
 
 // Middlewares
+app.use(logger);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 // Prefixo das rotas de API
 app.use('/api', routes);
