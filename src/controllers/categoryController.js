@@ -121,10 +121,47 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+/**
+ * Retorna estatísticas consolidadas das categorias.
+ */
+const getCategoryStats = async (req, res) => {
+  try {
+    const totalCategories = await Category.count();
+    
+    const categoriesWithCount = await Category.findAll({
+      attributes: [
+        'id',
+        'name',
+        [Category.sequelize.fn('COUNT', Category.sequelize.col('products.id')), 'productCount']
+      ],
+      include: [{
+        model: Product,
+        as: 'products',
+        attributes: []
+      }],
+      group: ['Category.id', 'Category.name']
+    });
+
+    const activeCategoriesCount = categoriesWithCount.filter(c => parseInt(c.getDataValue('productCount')) > 0).length;
+    const emptyCategoriesCount = totalCategories - activeCategoriesCount;
+
+    return res.status(200).json({
+      totalCategories,
+      categoriesWithProducts: activeCategoriesCount,
+      emptyCategories: emptyCategoriesCount,
+      categoriesSummary: categoriesWithCount
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAllCategories,
   getCategoryById,
   createCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getCategoryStats
 };
+
