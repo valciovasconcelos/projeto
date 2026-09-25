@@ -54,7 +54,37 @@ const validateCategoryBody = (req, res, next) => {
   next();
 };
 
+/**
+ * Middleware para validação dos dados de envio (body) de Movimentações de Estoque.
+ */
+const validateStockMovementBody = (req, res, next) => {
+  const { productId, type, quantity } = req.body;
+  const errors = [];
+
+  if (!productId || isNaN(Number(productId)) || Number(productId) <= 0) {
+    errors.push('O campo "productId" é obrigatório e deve ser um ID válido.');
+  }
+
+  if (!type || !['IN', 'OUT'].includes(String(type).toUpperCase())) {
+    errors.push('O campo "type" é obrigatório e deve ser "IN" ou "OUT".');
+  }
+
+  if (quantity === undefined || quantity === null || isNaN(Number(quantity)) || !Number.isInteger(Number(quantity))) {
+    errors.push('O campo "quantity" é obrigatório e deve ser um número inteiro.');
+  } else if (Number(quantity) <= 0) {
+    errors.push('A quantidade movimentada deve ser maior que zero.');
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
+  }
+
+  next();
+};
+
 module.exports = {
   validateProductBody,
-  validateCategoryBody
+  validateCategoryBody,
+  validateStockMovementBody
 };
+

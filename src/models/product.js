@@ -22,6 +22,17 @@ module.exports = (sequelize, DataTypes) => {
     description: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: {
+          args: [0],
+          msg: "A quantidade em estoque não pode ser negativa."
+        }
+      }
     }
   }, {
     tableName: 'products',
@@ -32,6 +43,10 @@ module.exports = (sequelize, DataTypes) => {
     Product.belongsTo(models.Category, {
       foreignKey: 'categoryId',
       as: 'category'
+    });
+    Product.hasMany(models.StockMovement, {
+      foreignKey: 'productId',
+      as: 'stockMovements'
     });
   };
 

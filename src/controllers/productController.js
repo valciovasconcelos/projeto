@@ -74,7 +74,7 @@ const getProductById = async (req, res) => {
  */
 const createProduct = async (req, res) => {
   try {
-    const { name, price, description, categoryId } = req.body;
+    const { name, price, description, categoryId, quantity } = req.body;
     
     if (categoryId) {
       const categoryExists = await Category.findByPk(categoryId);
@@ -83,7 +83,11 @@ const createProduct = async (req, res) => {
       }
     }
 
-    const product = await Product.create({ name, price, description, categoryId });
+    const initialQuantity = quantity !== undefined && !isNaN(Number(quantity)) && Number(quantity) >= 0
+      ? Number(quantity)
+      : 0;
+
+    const product = await Product.create({ name, price, description, categoryId, quantity: initialQuantity });
     
     const productWithCategory = await Product.findByPk(product.id, {
       include: [{
@@ -109,7 +113,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description, categoryId } = req.body;
+    const { name, price, description, categoryId, quantity } = req.body;
     
     const product = await Product.findByPk(id);
     if (!product) {
@@ -123,7 +127,12 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    await product.update({ name, price, description, categoryId });
+    const updateData = { name, price, description, categoryId };
+    if (quantity !== undefined && !isNaN(Number(quantity)) && Number(quantity) >= 0) {
+      updateData.quantity = Number(quantity);
+    }
+
+    await product.update(updateData);
 
     const productWithCategory = await Product.findByPk(product.id, {
       include: [{
@@ -163,7 +172,7 @@ const deleteProduct = async (req, res) => {
 };
 
 /**
- * Retorna estatísticas consolidadas dos produtos.
+ * Retorna estatísticas consolidadas dos produtos e estoque.
  */
 const getProductStats = async (req, res) => {
   try {
@@ -172,6 +181,10 @@ const getProductStats = async (req, res) => {
     const maxPrice = (await Product.max('price')) || 0;
     const sumPrice = (await Product.sum('price')) || 0;
     const avgPrice = totalProducts > 0 ? (sumPrice / totalProducts).toFixed(2) : 0;
+    const totalQuantityInStock = (await Product.sum('quantity')) || 0;
+
+    const allProducts = await Product.findAll({ attributes: ['price', 'quantity'] });
+    const totalStockValue = allProducts.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
 
     const categoriesWithCount = await Category.findAll({
       attributes: [
@@ -189,7 +202,8 @@ const getProductStats = async (req, res) => {
 
     return res.status(200).json({
       totalProducts,
-      totalInventoryValue: parseFloat(Number(sumPrice).toFixed(2)),
+      totalQuantityInStock,
+      totalInventoryValue: parseFloat(totalStockValue.toFixed(2)),
       averagePrice: parseFloat(avgPrice),
       minPrice: parseFloat(Number(minPrice).toFixed(2)),
       maxPrice: parseFloat(Number(maxPrice).toFixed(2)),
