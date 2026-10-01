@@ -182,6 +182,11 @@ const getProductStats = async (req, res) => {
     const sumPrice = (await Product.sum('price')) || 0;
     const avgPrice = totalProducts > 0 ? (sumPrice / totalProducts).toFixed(2) : 0;
     const totalQuantityInStock = (await Product.sum('quantity')) || 0;
+    const lowStockAlertsCount = await Product.count({
+      where: {
+        quantity: { [Op.lte]: 5 }
+      }
+    });
 
     const allProducts = await Product.findAll({ attributes: ['price', 'quantity'] });
     const totalStockValue = allProducts.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
@@ -207,7 +212,40 @@ const getProductStats = async (req, res) => {
       averagePrice: parseFloat(avgPrice),
       minPrice: parseFloat(Number(minPrice).toFixed(2)),
       maxPrice: parseFloat(Number(maxPrice).toFixed(2)),
+      lowStockAlertsCount,
       categoriesSummary: categoriesWithCount
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+/**
+ * Retorna produtos com quantidade de estoque igual ou inferior a um limite (threshold).
+ * Útil para relatórios e alertas de reposição de estoque.
+ */
+const getLowStockProducts = async (req, res) => {
+  try {
+    const threshold = req.query.threshold !== undefined && !isNaN(Number(req.query.threshold))
+      ? Math.max(0, Number(req.query.threshold))
+      : 5;
+
+    const products = await Product.findAll({
+      where: {
+        quantity: { [Op.lte]: threshold }
+      },
+      include: [{
+        model: Category,
+        as: 'category',
+        attributes: ['id', 'name']
+      }],
+      order: [['quantity', 'ASC']]
+    });
+
+    return res.status(200).json({
+      thresholdUsed: threshold,
+      totalLowStockItems: products.length,
+      products
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -220,6 +258,7 @@ module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
-  getProductStats
+  getProductStats,
+  getLowStockProducts
 };
 

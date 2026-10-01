@@ -21,6 +21,7 @@ router.get('/docs', (req, res) => {
       { method: 'GET', path: '/api/docs', description: 'Retorna a lista de rotas e documentação sintética' },
       { method: 'GET', path: '/api/products', description: 'Lista produtos paginados com filtros (search, categoryId, minPrice, maxPrice, sortBy, order)' },
       { method: 'GET', path: '/api/products/stats', description: 'Estatísticas agregadas de produtos, quantidade total em estoque e valor total' },
+      { method: 'GET', path: '/api/products/low-stock', description: 'Relatório de produtos em baixo estoque com limite configurável (threshold)' },
       { method: 'GET', path: '/api/products/:id', description: 'Busca produto por ID' },
       { method: 'POST', path: '/api/products', description: 'Cria novo produto com quantidade inicial em estoque' },
       { method: 'PUT', path: '/api/products/:id', description: 'Atualiza produto existente' },
