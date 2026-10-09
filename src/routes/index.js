@@ -3,43 +3,70 @@ const router = express.Router();
 const productRoutes = require('./productRoutes');
 const categoryRoutes = require('./categoryRoutes');
 const stockMovementRoutes = require('./stockMovementRoutes');
+const situationRoutes = require('./situationRoutes');
+const userRoutes = require('./userRoutes');
+const productSituationRoutes = require('./productSituationRoutes');
+const productCategoryRoutes = require('./productCategoryRoutes');
 const { sequelize } = require('../models');
 
 // Rotas da API
 router.use('/products', productRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/stock-movements', stockMovementRoutes);
+router.use('/situations', situationRoutes);
+router.use('/users', userRoutes);
+router.use('/product-situations', productSituationRoutes);
+router.use('/product-categories', productCategoryRoutes);
 
 // Rota de Documentação de Endpoints
 router.get('/docs', (req, res) => {
   res.status(200).json({
-    name: 'NodeJS Express API P1',
-    version: '1.1.0',
-    description: 'Documentação dos endpoints da API (Com Controle de Estoque e Movimentações)',
+    name: 'NodeJS Express API - Projeto Engenharia de Software',
+    version: '2.0.0',
+    description: 'API completa atendendo ao Diagrama ER (Users, Situations, Product Situations, Product Categories, Products)',
     endpoints: [
-      { method: 'GET', path: '/api/health', description: 'Verifica saúde da API e status do banco de dados' },
-      { method: 'GET', path: '/api/docs', description: 'Retorna a lista de rotas e documentação sintética' },
-      { method: 'GET', path: '/api/products', description: 'Lista produtos paginados com filtros (search, categoryId, minPrice, maxPrice, sortBy, order)' },
-      { method: 'GET', path: '/api/products/stats', description: 'Estatísticas agregadas de produtos, quantidade total em estoque e valor total' },
-      { method: 'GET', path: '/api/products/low-stock', description: 'Relatório de produtos em baixo estoque com limite configurável (threshold)' },
+      { method: 'GET', path: '/api/health', description: 'Status de integridade da API e conectividade com banco' },
+      { method: 'GET', path: '/api/docs', description: 'Documentação sintética das rotas' },
+
+      // Situations
+      { method: 'GET', path: '/api/situations', description: 'Lista todas as situações de usuários com seus usuários vinculados' },
+      { method: 'GET', path: '/api/situations/:id', description: 'Busca situação por ID' },
+      { method: 'POST', path: '/api/situations', description: 'Cria nova situação (nameSituation)' },
+      { method: 'PUT', path: '/api/situations/:id', description: 'Atualiza situação existente' },
+      { method: 'DELETE', path: '/api/situations/:id', description: 'Remove situação pelo ID' },
+
+      // Users
+      { method: 'GET', path: '/api/users', description: 'Lista todos os usuários com suas situações' },
+      { method: 'GET', path: '/api/users/:id', description: 'Busca usuário por ID' },
+      { method: 'POST', path: '/api/users', description: 'Cria novo usuário (name, email, situationId)' },
+      { method: 'PUT', path: '/api/users/:id', description: 'Atualiza usuário por ID' },
+      { method: 'DELETE', path: '/api/users/:id', description: 'Remove usuário pelo ID' },
+
+      // Product Situations
+      { method: 'GET', path: '/api/product-situations', description: 'Lista todas as situações de produtos com seus produtos' },
+      { method: 'GET', path: '/api/product-situations/:id', description: 'Busca situação de produto por ID' },
+      { method: 'POST', path: '/api/product-situations', description: 'Cria nova situação de produto (name)' },
+      { method: 'PUT', path: '/api/product-situations/:id', description: 'Atualiza situação de produto' },
+      { method: 'DELETE', path: '/api/product-situations/:id', description: 'Remove situação de produto' },
+
+      // Product Categories
+      { method: 'GET', path: '/api/product-categories', description: 'Lista todas as categorias de produtos com seus produtos' },
+      { method: 'GET', path: '/api/product-categories/:id', description: 'Busca categoria de produto por ID' },
+      { method: 'POST', path: '/api/product-categories', description: 'Cria nova categoria de produto (name)' },
+      { method: 'PUT', path: '/api/product-categories/:id', description: 'Atualiza categoria de produto' },
+      { method: 'DELETE', path: '/api/product-categories/:id', description: 'Remove categoria de produto' },
+
+      // Products
+      { method: 'GET', path: '/api/products', description: 'Lista produtos paginados com filtros (productCategoryId, productSituationId, etc)' },
       { method: 'GET', path: '/api/products/:id', description: 'Busca produto por ID' },
-      { method: 'POST', path: '/api/products', description: 'Cria novo produto com quantidade inicial em estoque' },
+      { method: 'POST', path: '/api/products', description: 'Cria produto (name, price, productCategoryId, productSituationId, etc)' },
       { method: 'PUT', path: '/api/products/:id', description: 'Atualiza produto existente' },
-      { method: 'DELETE', path: '/api/products/:id', description: 'Remove produto pelo ID' },
-      { method: 'GET', path: '/api/categories', description: 'Lista categorias paginadas com busca' },
-      { method: 'GET', path: '/api/categories/stats', description: 'Estatísticas agregadas das categorias' },
-      { method: 'GET', path: '/api/categories/:id', description: 'Busca categoria por ID com seus produtos vinculados' },
-      { method: 'POST', path: '/api/categories', description: 'Cria nova categoria' },
-      { method: 'PUT', path: '/api/categories/:id', description: 'Atualiza categoria existente' },
-      { method: 'DELETE', path: '/api/categories/:id', description: 'Remove categoria (caso não possua produtos vinculados)' },
-      { method: 'GET', path: '/api/stock-movements', description: 'Lista histórico global de movimentações de estoque (filtros por productId e type IN/OUT)' },
-      { method: 'POST', path: '/api/stock-movements', description: 'Registra movimentação de entrada (IN) ou saída (OUT) de estoque com atualização automática do saldo do produto' },
-      { method: 'GET', path: '/api/stock-movements/product/:id', description: 'Histórico de movimentações de estoque de um produto específico' }
+      { method: 'DELETE', path: '/api/products/:id', description: 'Remove produto por ID' }
     ]
   });
 });
 
-// Rota de Health Check (Verificação de Integridade e Conectividade do Banco)
+// Health check
 router.get('/health', async (req, res) => {
   let dbStatus = 'DISCONNECTED';
   try {
@@ -57,9 +84,8 @@ router.get('/health', async (req, res) => {
       status: dbStatus,
       dialect: sequelize.getDialect()
     },
-    service: 'NodeJS Express API P1'
+    service: 'NodeJS Express API - Projeto Engenharia de Software'
   });
 });
 
 module.exports = router;
-

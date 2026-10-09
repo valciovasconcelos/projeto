@@ -1,14 +1,14 @@
-const { Product, Category } = require('../models');
+const { Product, Category, ProductCategory, ProductSituation } = require('../models');
 const { paginate } = require('../services/paginationService');
 const { Op } = require('sequelize');
 
 /**
- * Retorna todos os produtos de forma paginada com suas respectivas categorias,
+ * Retorna todos os produtos de forma paginada com suas respectivas categorias e situações,
  * suportando busca por nome, filtro por categoria, faixa de preço e ordenação.
  */
 const getAllProducts = async (req, res) => {
   try {
-    const { page, limit, search, categoryId, minPrice, maxPrice, sortBy = 'id', order = 'ASC' } = req.query;
+    const { page, limit, search, categoryId, productCategoryId, productSituationId, minPrice, maxPrice, sortBy = 'id', order = 'ASC' } = req.query;
 
     const where = {};
 
@@ -18,6 +18,14 @@ const getAllProducts = async (req, res) => {
 
     if (categoryId) {
       where.categoryId = Number(categoryId);
+    }
+
+    if (productCategoryId) {
+      where.productCategoryId = Number(productCategoryId);
+    }
+
+    if (productSituationId) {
+      where.productSituationId = Number(productSituationId);
     }
 
     if (minPrice || maxPrice) {
@@ -30,13 +38,32 @@ const getAllProducts = async (req, res) => {
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'id';
     const sortOrder = order.toString().toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
-    const result = await paginate(Product, page, limit, {
-      where,
-      include: [{
+    const includeModels = [];
+    if (ProductSituation) {
+      includeModels.push({
+        model: ProductSituation,
+        as: 'productSituation',
+        attributes: ['id', 'name']
+      });
+    }
+    if (ProductCategory) {
+      includeModels.push({
+        model: ProductCategory,
+        as: 'productCategory',
+        attributes: ['id', 'name']
+      });
+    }
+    if (Category) {
+      includeModels.push({
         model: Category,
         as: 'category',
         attributes: ['id', 'name']
-      }],
+      });
+    }
+
+    const result = await paginate(Product, page, limit, {
+      where,
+      include: includeModels,
       order: [[sortField, sortOrder]]
     });
     return res.status(200).json(result);
@@ -46,17 +73,37 @@ const getAllProducts = async (req, res) => {
 };
 
 /**
- * Retorna um produto específico pelo ID, contendo suas informações de categoria.
+ * Retorna um produto específico pelo ID.
  */
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findByPk(id, {
-      include: [{
+
+    const includeModels = [];
+    if (ProductSituation) {
+      includeModels.push({
+        model: ProductSituation,
+        as: 'productSituation',
+        attributes: ['id', 'name']
+      });
+    }
+    if (ProductCategory) {
+      includeModels.push({
+        model: ProductCategory,
+        as: 'productCategory',
+        attributes: ['id', 'name']
+      });
+    }
+    if (Category) {
+      includeModels.push({
         model: Category,
         as: 'category',
         attributes: ['id', 'name']
-      }]
+      });
+    }
+
+    const product = await Product.findByPk(id, {
+      include: includeModels
     });
     
     if (!product) {
@@ -70,15 +117,29 @@ const getProductById = async (req, res) => {
 };
 
 /**
- * Cria um novo produto com validações de dados e de categoria.
+ * Cria um novo produto com validações de dados, categoria e situação.
  */
 const createProduct = async (req, res) => {
   try {
-    const { name, price, description, categoryId, quantity } = req.body;
+    const { name, price, description, categoryId, productCategoryId, productSituationId, quantity } = req.body;
     
-    if (categoryId) {
-      const categoryExists = await Category.findByPk(categoryId);
-      if (!categoryExists) {
+    if (productCategoryId) {
+      const pCatExists = await ProductCategory.findByPk(productCategoryId);
+      if (!pCatExists) {
+        return res.status(400).json({ error: 'A categoria de produto informada não existe.' });
+      }
+    }
+
+    if (productSituationId) {
+      const pSitExists = await ProductSituation.findByPk(productSituationId);
+      if (!pSitExists) {
+        return res.status(400).json({ error: 'A situação de produto informada não existe.' });
+      }
+    }
+
+    if (categoryId && Category) {
+      const catExists = await Category.findByPk(categoryId);
+      if (!catExists) {
         return res.status(400).json({ error: 'A categoria informada não existe.' });
       }
     }
@@ -87,17 +148,26 @@ const createProduct = async (req, res) => {
       ? Number(quantity)
       : 0;
 
-    const product = await Product.create({ name, price, description, categoryId, quantity: initialQuantity });
+    const product = await Product.create({
+      name,
+      price: price || 0,
+      description,
+      categoryId: categoryId || null,
+      productCategoryId: productCategoryId || categoryId || null,
+      productSituationId: productSituationId || null,
+      quantity: initialQuantity
+    });
     
-    const productWithCategory = await Product.findByPk(product.id, {
-      include: [{
-        model: Category,
-        as: 'category',
-        attributes: ['id', 'name']
-      }]
+    const includeModels = [];
+    if (ProductSituation) includeModels.push({ model: ProductSituation, as: 'productSituation', attributes: ['id', 'name'] });
+    if (ProductCategory) includeModels.push({ model: ProductCategory, as: 'productCategory', attributes: ['id', 'name'] });
+    if (Category) includeModels.push({ model: Category, as: 'category', attributes: ['id', 'name'] });
+
+    const productWithRelations = await Product.findByPk(product.id, {
+      include: includeModels
     });
 
-    return res.status(201).json(productWithCategory);
+    return res.status(201).json(productWithRelations);
   } catch (error) {
     if (error.name === 'SequelizeValidationError') {
       const messages = error.errors.map(err => err.message);
@@ -108,41 +178,57 @@ const createProduct = async (req, res) => {
 };
 
 /**
- * Atualiza os campos de um produto existente, validando a categoria se fornecida.
+ * Atualiza os campos de um produto existente.
  */
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description, categoryId, quantity } = req.body;
+    const { name, price, description, categoryId, productCategoryId, productSituationId, quantity } = req.body;
     
     const product = await Product.findByPk(id);
     if (!product) {
       return res.status(404).json({ message: 'Produto não encontrado.' });
     }
     
-    if (categoryId) {
-      const categoryExists = await Category.findByPk(categoryId);
-      if (!categoryExists) {
-        return res.status(400).json({ error: 'A categoria informada não existe.' });
+    if (productCategoryId) {
+      const pCatExists = await ProductCategory.findByPk(productCategoryId);
+      if (!pCatExists) {
+        return res.status(400).json({ error: 'A categoria de produto informada não existe.' });
       }
     }
 
-    const updateData = { name, price, description, categoryId };
+    if (productSituationId) {
+      const pSitExists = await ProductSituation.findByPk(productSituationId);
+      if (!pSitExists) {
+        return res.status(400).json({ error: 'A situação de produto informada não existe.' });
+      }
+    }
+
+    const updateData = {
+      ...(name !== undefined && { name }),
+      ...(price !== undefined && { price }),
+      ...(description !== undefined && { description }),
+      ...(categoryId !== undefined && { categoryId }),
+      ...(productCategoryId !== undefined && { productCategoryId }),
+      ...(productSituationId !== undefined && { productSituationId })
+    };
+
     if (quantity !== undefined && !isNaN(Number(quantity)) && Number(quantity) >= 0) {
       updateData.quantity = Number(quantity);
     }
 
     await product.update(updateData);
 
-    const productWithCategory = await Product.findByPk(product.id, {
-      include: [{
-        model: Category,
-        as: 'category',
-        attributes: ['id', 'name']
-      }]
+    const includeModels = [];
+    if (ProductSituation) includeModels.push({ model: ProductSituation, as: 'productSituation', attributes: ['id', 'name'] });
+    if (ProductCategory) includeModels.push({ model: ProductCategory, as: 'productCategory', attributes: ['id', 'name'] });
+    if (Category) includeModels.push({ model: Category, as: 'category', attributes: ['id', 'name'] });
+
+    const updatedProduct = await Product.findByPk(product.id, {
+      include: includeModels
     });
 
-    return res.status(200).json(productWithCategory);
+    return res.status(200).json(updatedProduct);
   } catch (error) {
     if (error.name === 'SequelizeValidationError') {
       const messages = error.errors.map(err => err.message);
@@ -189,21 +275,7 @@ const getProductStats = async (req, res) => {
     });
 
     const allProducts = await Product.findAll({ attributes: ['price', 'quantity'] });
-    const totalStockValue = allProducts.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
-
-    const categoriesWithCount = await Category.findAll({
-      attributes: [
-        'id',
-        'name',
-        [Product.sequelize.fn('COUNT', Product.sequelize.col('products.id')), 'productCount']
-      ],
-      include: [{
-        model: Product,
-        as: 'products',
-        attributes: []
-      }],
-      group: ['Category.id', 'Category.name']
-    });
+    const totalStockValue = allProducts.reduce((sum, p) => sum + (Number(p.price || 0) * Number(p.quantity || 0)), 0);
 
     return res.status(200).json({
       totalProducts,
@@ -212,8 +284,7 @@ const getProductStats = async (req, res) => {
       averagePrice: parseFloat(avgPrice),
       minPrice: parseFloat(Number(minPrice).toFixed(2)),
       maxPrice: parseFloat(Number(maxPrice).toFixed(2)),
-      lowStockAlertsCount,
-      categoriesSummary: categoriesWithCount
+      lowStockAlertsCount
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -221,8 +292,7 @@ const getProductStats = async (req, res) => {
 };
 
 /**
- * Retorna produtos com quantidade de estoque igual ou inferior a um limite (threshold).
- * Útil para relatórios e alertas de reposição de estoque.
+ * Retorna produtos em baixo estoque.
  */
 const getLowStockProducts = async (req, res) => {
   try {
@@ -234,11 +304,6 @@ const getLowStockProducts = async (req, res) => {
       where: {
         quantity: { [Op.lte]: threshold }
       },
-      include: [{
-        model: Category,
-        as: 'category',
-        attributes: ['id', 'name']
-      }],
       order: [['quantity', 'ASC']]
     });
 
@@ -261,4 +326,3 @@ module.exports = {
   getProductStats,
   getLowStockProducts
 };
-

@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+      allowNull: true,
+      defaultValue: 0.00,
       validate: {
         min: {
           args: [0],
@@ -25,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     quantity: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       defaultValue: 0,
       validate: {
         min: {
@@ -33,6 +34,18 @@ module.exports = (sequelize, DataTypes) => {
           msg: "A quantidade em estoque não pode ser negativa."
         }
       }
+    },
+    productSituationId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    productCategoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    categoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     tableName: 'products',
@@ -40,14 +53,26 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Product.associate = (models) => {
-    Product.belongsTo(models.Category, {
-      foreignKey: 'categoryId',
-      as: 'category'
+    Product.belongsTo(models.ProductSituation, {
+      foreignKey: 'productSituationId',
+      as: 'productSituation'
     });
-    Product.hasMany(models.StockMovement, {
-      foreignKey: 'productId',
-      as: 'stockMovements'
+    Product.belongsTo(models.ProductCategory, {
+      foreignKey: 'productCategoryId',
+      as: 'productCategory'
     });
+    if (models.Category) {
+      Product.belongsTo(models.Category, {
+        foreignKey: 'categoryId',
+        as: 'category'
+      });
+    }
+    if (models.StockMovement) {
+      Product.hasMany(models.StockMovement, {
+        foreignKey: 'productId',
+        as: 'stockMovements'
+      });
+    }
   };
 
   return Product;
