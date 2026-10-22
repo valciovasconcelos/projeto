@@ -5,7 +5,7 @@
 
 ## Como rodar o projeto baixado
 
-Duplicar o arquivo ".env.example" e renomear para ".env".<br>
+Duplicar o arquivo `.env.example` e renomear a cópia para `.env`.<br>
 Alterar no arquivo .env as credenciais do banco de dados<br>
 
 Instalar todas as dependencias indicada pelo package.json.
@@ -31,6 +31,16 @@ Executar as seeds para cadastrar registro de teste nas tabelas no banco de dados
 ```
 node dist/run-seeds.js
 ```
+
+## Testes da API
+
+Com o servidor em execução e as migrations aplicadas, execute a coleção completa do Postman com:
+
+```
+npm test
+```
+
+O teste cria registros identificados para a execução, percorre as operações de consulta, cadastro, atualização e exclusão das cinco entidades do diagrama, verifica as relações entre elas e testa validações de usuário. Ao final, remove os registros criados. A coleção também pode ser importada manualmente no Postman pelo arquivo `postman_collection.json`.
 
 ## Testes no Postman
 

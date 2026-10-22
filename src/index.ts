@@ -11,6 +11,8 @@ import situationsController from "./controllers/SituationsController"
 import productCategoriesController from "./controllers/ProductCategoriesController"
 import productSituationsController from "./controllers/ProductSituationsController"
 import productsController from "./controllers/ProductsController"
+import usersController from "./controllers/UsersController"
+import { AppDataSource } from "./data-source"
 
 // Criar a Aplicação Express
 const app = express()
@@ -24,8 +26,17 @@ app.use("/", situationsController)
 app.use("/", productCategoriesController)
 app.use("/", productSituationsController)
 app.use("/", productsController)
+app.use("/", usersController)
 
-// Iniciar o servidor na porta 8080
-app.listen(process.env.PORT, () => {
-    console.log(`Servidor iniciado na porta ${process.env.PORT}: http://localhost:${process.env.PORT}`)
-})
+const port = Number(process.env.PORT ?? 8080)
+
+AppDataSource.initialize()
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`Servidor iniciado na porta ${port}: http://localhost:${port}`)
+        })
+    })
+    .catch((error: unknown) => {
+        console.error("Erro ao conectar ao banco de dados:", error)
+        process.exitCode = 1
+    })

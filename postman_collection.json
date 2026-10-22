@@ -1,409 +1,144 @@
 {
-	"info": {
-		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-		"name": "Projeto Node API - Testes",
-		"description": "Testes CRUD para executar com a API iniciada e as migrations aplicadas ao banco MySQL.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"event": [
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					"const method = pm.request.method;",
-					"const hasId = /\\/\\d+$/.test(pm.request.url.getPath());",
-					"const expectedStatus = {",
-					"    GET: hasId ? [200, 404] : [200],",
-					"    POST: [201],",
-					"    PUT: [200, 404],",
-					"    DELETE: [200, 404]",
-					"};",
-					"",
-					"pm.test('Status HTTP esperado para ' + method, function () {",
-					"    pm.expect(expectedStatus[method]).to.include(pm.response.code);",
-					"});",
-					"",
-					"pm.test('Resposta em JSON válido', function () {",
-					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
-					"    pm.expect(function () { pm.response.json(); }).not.to.throw();",
-					"});"
-				]
-			}
-		}
-	],
-	"item": [
-		{
-			"name": "Situations",
-			"item": [
-				{
-					"name": "GET - Listar todas as situações",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/situations",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["situations"]
-						}
-					}
-				},
-				{
-					"name": "GET - Visualizar situação por ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/situations/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["situations", "1"]
-						}
-					}
-				},
-				{
-					"name": "POST - Cadastrar situação",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"nameSituation\": \"Ativo\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/situations",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["situations"]
-						}
-					}
-				},
-				{
-					"name": "PUT - Atualizar situação",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"nameSituation\": \"Inativo\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/situations/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["situations", "1"]
-						}
-					}
-				},
-				{
-					"name": "DELETE - Remover situação",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/situations/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["situations", "1"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Product Categories",
-			"item": [
-				{
-					"name": "GET - Listar todas as categorias",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/product-categories",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-categories"]
-						}
-					}
-				},
-				{
-					"name": "GET - Visualizar categoria por ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/product-categories/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-categories", "1"]
-						}
-					}
-				},
-				{
-					"name": "POST - Cadastrar categoria",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Eletrônicos\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/product-categories",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-categories"]
-						}
-					}
-				},
-				{
-					"name": "PUT - Atualizar categoria",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Informática\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/product-categories/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-categories", "1"]
-						}
-					}
-				},
-				{
-					"name": "DELETE - Remover categoria",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/product-categories/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-categories", "1"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Product Situations",
-			"item": [
-				{
-					"name": "GET - Listar todas as situações de produto",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/product-situations",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-situations"]
-						}
-					}
-				},
-				{
-					"name": "GET - Visualizar situação de produto por ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/product-situations/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-situations", "1"]
-						}
-					}
-				},
-				{
-					"name": "POST - Cadastrar situação de produto",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Disponível\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/product-situations",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-situations"]
-						}
-					}
-				},
-				{
-					"name": "PUT - Atualizar situação de produto",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Indisponível\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/product-situations/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-situations", "1"]
-						}
-					}
-				},
-				{
-					"name": "DELETE - Remover situação de produto",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/product-situations/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["product-situations", "1"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Products",
-			"item": [
-				{
-					"name": "GET - Listar todos os produtos",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products"]
-						}
-					}
-				},
-				{
-					"name": "GET - Visualizar produto por ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/products/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "1"]
-						}
-					}
-				},
-				{
-					"name": "POST - Cadastrar produto",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Notebook Dell\",\n    \"productSituationId\": 1,\n    \"productCategoryId\": 1\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/products",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products"]
-						}
-					}
-				},
-				{
-					"name": "PUT - Atualizar produto",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Notebook Dell Atualizado\",\n    \"productSituationId\": 1,\n    \"productCategoryId\": 1\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/products/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "1"]
-						}
-					}
-				},
-				{
-					"name": "DELETE - Remover produto",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/products/1",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["products", "1"]
-						}
-					}
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Projeto Node API - Testes CRUD",
+    "description": "Fluxo de testes CRUD do diagrama. A coleção cria registros próprios, valida as respostas e remove os dados criados ao final.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "runId", "value": "", "type": "string" },
+    { "key": "situationId", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "categoryId", "value": "", "type": "string" },
+    { "key": "productSituationId", "value": "", "type": "string" },
+    { "key": "productId", "value": "", "type": "string" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.info.requestName === 'POST - Cadastrar situação') {",
+          "    pm.collectionVariables.set('runId', pm.variables.replaceIn('{{$guid}}'));",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const resource = pm.request.url.getPath().split('/').filter(Boolean)[0];",
+          "const method = pm.request.method;",
+          "const name = pm.info.requestName;",
+          "const idVariables = { situations: 'situationId', users: 'userId', 'product-categories': 'categoryId', 'product-situations': 'productSituationId', products: 'productId' };",
+          "const responseKeys = { situations: 'situation', users: 'user', 'product-categories': 'productCategory', 'product-situations': 'productSituation', products: 'product' };",
+          "const nameFields = { situations: 'nameSituation', users: 'name', 'product-categories': 'name', 'product-situations': 'name', products: 'name' };",
+          "let expectedStatus = method === 'POST' ? 201 : method === 'PUT' || method === 'DELETE' ? 200 : 200;",
+          "if (name.includes('e-mail inválido')) expectedStatus = 400;",
+          "if (name.includes('e-mail duplicado')) expectedStatus = 409;",
+          "if (name.includes('Confirmar exclusão')) expectedStatus = 404;",
+          "pm.test('Status HTTP conforme o cenário', function () { pm.response.to.have.status(expectedStatus); });",
+          "pm.test('Resposta JSON válida', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); pm.expect(function () { pm.response.json(); }).not.to.throw(); });",
+          "if (expectedStatus < 400) {",
+          "    const data = pm.response.json();",
+          "    if (method === 'GET' && pm.request.url.getPath().split('/').filter(Boolean).length === 1) {",
+          "        pm.test('Listagem retorna uma coleção', function () { pm.expect(data).to.be.an('array'); });",
+          "    } else if (method === 'POST') {",
+          "        const created = data[responseKeys[resource]];",
+          "        pm.test('Cadastro retorna o registro e seu ID', function () { pm.expect(created).to.be.an('object'); pm.expect(created.id).to.be.a('number'); });",
+          "        if (created && created.id) pm.collectionVariables.set(idVariables[resource], String(created.id));",
+          "        if (resource === 'users') pm.test('Senha não é exposta na resposta', function () { pm.expect(created).not.to.have.property('password'); });",
+          "    } else if (method === 'GET') {",
+          "        pm.test('Consulta retorna o registro solicitado', function () { pm.expect(data.id).to.eql(Number(pm.collectionVariables.get(idVariables[resource]))); });",
+          "        if (name.includes('Confirmar') && !name.includes('exclusão')) pm.test('Alteração foi persistida', function () { pm.expect(data[nameFields[resource]]).to.eql('Atualizado ' + pm.collectionVariables.get('runId')); });",
+          "        if (resource === 'users') pm.test('Usuário inclui a situação relacionada sem expor senha', function () { pm.expect(data).to.have.property('situation'); pm.expect(data).not.to.have.property('password'); });",
+          "        if (resource === 'products') pm.test('Produto inclui categoria e situação relacionadas', function () { pm.expect(data.productCategory.id).to.eql(Number(pm.collectionVariables.get('categoryId'))); pm.expect(data.productSituation.id).to.eql(Number(pm.collectionVariables.get('productSituationId'))); });",
+          "    } else if (method === 'PUT') {",
+          "        const updated = data[responseKeys[resource]];",
+          "        pm.test('Atualização retorna o registro alterado', function () { pm.expect(updated.id).to.eql(Number(pm.collectionVariables.get(idVariables[resource]))); pm.expect(updated[nameFields[resource]]).to.eql('Atualizado ' + pm.collectionVariables.get('runId')); });",
+          "    } else if (method === 'DELETE') {",
+          "        pm.test('Exclusão confirma a operação', function () { pm.expect(data.mensagem).to.be.a('string').and.not.empty; });",
+          "    }",
+          "} else if (expectedStatus === 404) {",
+          "    pm.test('Registro excluído não é mais encontrado', function () { pm.expect(pm.response.json().mensagem).to.be.a('string'); });",
+          "} else if (expectedStatus === 400 || expectedStatus === 409) {",
+          "    pm.test('Erro de validação informa o motivo', function () { pm.expect(pm.response.json().mensagem).to.be.a('string').and.not.empty; });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Situations",
+      "item": [
+        { "name": "GET - Listar situações", "request": { "method": "GET", "url": "{{baseUrl}}/situations" } },
+        { "name": "POST - Cadastrar situação", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nameSituation\": \"Ativo {{runId}}\"\n}" }, "url": "{{baseUrl}}/situations" } },
+        { "name": "GET - Consultar situação criada", "request": { "method": "GET", "url": "{{baseUrl}}/situations/{{situationId}}" } },
+        { "name": "PUT - Atualizar situação", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nameSituation\": \"Atualizado {{runId}}\"\n}" }, "url": "{{baseUrl}}/situations/{{situationId}}" } },
+        { "name": "GET - Confirmar situação atualizada", "request": { "method": "GET", "url": "{{baseUrl}}/situations/{{situationId}}" } }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        { "name": "GET - Listar usuários", "request": { "method": "GET", "url": "{{baseUrl}}/users" } },
+        { "name": "POST - Criar usuário", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Usuário {{runId}}\",\n  \"email\": \"postman.{{runId}}@exemplo.com\",\n  \"password\": \"senha-de-teste\",\n  \"situationId\": {{situationId}}\n}" }, "url": "{{baseUrl}}/users" } },
+        { "name": "GET - Consultar usuário criado", "request": { "method": "GET", "url": "{{baseUrl}}/users/{{userId}}" } },
+        { "name": "PUT - Atualizar usuário", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Atualizado {{runId}}\"\n}" }, "url": "{{baseUrl}}/users/{{userId}}" } },
+        { "name": "GET - Confirmar usuário atualizado", "request": { "method": "GET", "url": "{{baseUrl}}/users/{{userId}}" } },
+        { "name": "POST - Rejeitar e-mail duplicado", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Duplicado\",\n  \"email\": \"postman.{{runId}}@exemplo.com\",\n  \"password\": \"senha-de-teste\"\n}" }, "url": "{{baseUrl}}/users" } },
+        { "name": "POST - Rejeitar e-mail inválido", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Inválido\",\n  \"email\": \"email-invalido\",\n  \"password\": \"senha-de-teste\"\n}" }, "url": "{{baseUrl}}/users" } },
+        { "name": "DELETE - Remover usuário criado", "request": { "method": "DELETE", "url": "{{baseUrl}}/users/{{userId}}" } },
+        { "name": "GET - Confirmar exclusão do usuário", "request": { "method": "GET", "url": "{{baseUrl}}/users/{{userId}}" } }
+      ]
+    },
+    {
+      "name": "Product Categories",
+      "item": [
+        { "name": "GET - Listar categorias", "request": { "method": "GET", "url": "{{baseUrl}}/product-categories" } },
+        { "name": "POST - Criar categoria", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Categoria {{runId}}\"\n}" }, "url": "{{baseUrl}}/product-categories" } },
+        { "name": "GET - Consultar categoria criada", "request": { "method": "GET", "url": "{{baseUrl}}/product-categories/{{categoryId}}" } },
+        { "name": "PUT - Atualizar categoria", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Atualizado {{runId}}\"\n}" }, "url": "{{baseUrl}}/product-categories/{{categoryId}}" } },
+        { "name": "GET - Confirmar categoria atualizada", "request": { "method": "GET", "url": "{{baseUrl}}/product-categories/{{categoryId}}" } }
+      ]
+    },
+    {
+      "name": "Product Situations",
+      "item": [
+        { "name": "GET - Listar situações de produto", "request": { "method": "GET", "url": "{{baseUrl}}/product-situations" } },
+        { "name": "POST - Criar situação de produto", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Situação {{runId}}\"\n}" }, "url": "{{baseUrl}}/product-situations" } },
+        { "name": "GET - Consultar situação criada", "request": { "method": "GET", "url": "{{baseUrl}}/product-situations/{{productSituationId}}" } },
+        { "name": "PUT - Atualizar situação de produto", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Atualizado {{runId}}\"\n}" }, "url": "{{baseUrl}}/product-situations/{{productSituationId}}" } },
+        { "name": "GET - Confirmar situação atualizada", "request": { "method": "GET", "url": "{{baseUrl}}/product-situations/{{productSituationId}}" } }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        { "name": "GET - Listar produtos", "request": { "method": "GET", "url": "{{baseUrl}}/products" } },
+        { "name": "POST - Criar produto", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Produto {{runId}}\",\n  \"productSituationId\": {{productSituationId}},\n  \"productCategoryId\": {{categoryId}}\n}" }, "url": "{{baseUrl}}/products" } },
+        { "name": "GET - Consultar produto criado", "request": { "method": "GET", "url": "{{baseUrl}}/products/{{productId}}" } },
+        { "name": "PUT - Atualizar produto", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Atualizado {{runId}}\"\n}" }, "url": "{{baseUrl}}/products/{{productId}}" } },
+        { "name": "GET - Confirmar produto atualizado", "request": { "method": "GET", "url": "{{baseUrl}}/products/{{productId}}" } },
+        { "name": "DELETE - Remover produto criado", "request": { "method": "DELETE", "url": "{{baseUrl}}/products/{{productId}}" } },
+        { "name": "GET - Confirmar exclusão do produto", "request": { "method": "GET", "url": "{{baseUrl}}/products/{{productId}}" } }
+      ]
+    },
+    {
+      "name": "Limpeza dos cadastros de apoio",
+      "item": [
+        { "name": "DELETE - Remover categoria criada", "request": { "method": "DELETE", "url": "{{baseUrl}}/product-categories/{{categoryId}}" } },
+        { "name": "GET - Confirmar exclusão da categoria", "request": { "method": "GET", "url": "{{baseUrl}}/product-categories/{{categoryId}}" } },
+        { "name": "DELETE - Remover situação de produto criada", "request": { "method": "DELETE", "url": "{{baseUrl}}/product-situations/{{productSituationId}}" } },
+        { "name": "GET - Confirmar exclusão da situação de produto", "request": { "method": "GET", "url": "{{baseUrl}}/product-situations/{{productSituationId}}" } },
+        { "name": "DELETE - Remover situação criada", "request": { "method": "DELETE", "url": "{{baseUrl}}/situations/{{situationId}}" } },
+        { "name": "GET - Confirmar exclusão da situação", "request": { "method": "GET", "url": "{{baseUrl}}/situations/{{situationId}}" } }
+      ]
+    }
+  ]
 }
