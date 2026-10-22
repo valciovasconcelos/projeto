@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Environment Settings
+    "module": "Node16",
+    "target": "es2020",
+    "moduleResolution": "Node16",
+    "types": ["node"],
+
+    // Interoperability
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Decorator support (necessário para TypeORM)
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "resolveJsonModule": true,
+
+    // Stricter Typechecking Options
+    "strict": true,
+    "skipLibCheck": true
+  }
+}

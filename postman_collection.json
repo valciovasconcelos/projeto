@@ -1,0 +1,409 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Projeto Node API - Testes",
+		"description": "Testes CRUD para executar com a API iniciada e as migrations aplicadas ao banco MySQL.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"event": [
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const method = pm.request.method;",
+					"const hasId = /\\/\\d+$/.test(pm.request.url.getPath());",
+					"const expectedStatus = {",
+					"    GET: hasId ? [200, 404] : [200],",
+					"    POST: [201],",
+					"    PUT: [200, 404],",
+					"    DELETE: [200, 404]",
+					"};",
+					"",
+					"pm.test('Status HTTP esperado para ' + method, function () {",
+					"    pm.expect(expectedStatus[method]).to.include(pm.response.code);",
+					"});",
+					"",
+					"pm.test('Resposta em JSON válido', function () {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"    pm.expect(function () { pm.response.json(); }).not.to.throw();",
+					"});"
+				]
+			}
+		}
+	],
+	"item": [
+		{
+			"name": "Situations",
+			"item": [
+				{
+					"name": "GET - Listar todas as situações",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/situations",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["situations"]
+						}
+					}
+				},
+				{
+					"name": "GET - Visualizar situação por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/situations/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["situations", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST - Cadastrar situação",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nameSituation\": \"Ativo\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/situations",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["situations"]
+						}
+					}
+				},
+				{
+					"name": "PUT - Atualizar situação",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nameSituation\": \"Inativo\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/situations/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["situations", "1"]
+						}
+					}
+				},
+				{
+					"name": "DELETE - Remover situação",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/situations/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["situations", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Product Categories",
+			"item": [
+				{
+					"name": "GET - Listar todas as categorias",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/product-categories",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-categories"]
+						}
+					}
+				},
+				{
+					"name": "GET - Visualizar categoria por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/product-categories/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-categories", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST - Cadastrar categoria",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Eletrônicos\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/product-categories",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-categories"]
+						}
+					}
+				},
+				{
+					"name": "PUT - Atualizar categoria",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Informática\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/product-categories/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-categories", "1"]
+						}
+					}
+				},
+				{
+					"name": "DELETE - Remover categoria",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/product-categories/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-categories", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Product Situations",
+			"item": [
+				{
+					"name": "GET - Listar todas as situações de produto",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/product-situations",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-situations"]
+						}
+					}
+				},
+				{
+					"name": "GET - Visualizar situação de produto por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/product-situations/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-situations", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST - Cadastrar situação de produto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Disponível\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/product-situations",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-situations"]
+						}
+					}
+				},
+				{
+					"name": "PUT - Atualizar situação de produto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Indisponível\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/product-situations/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-situations", "1"]
+						}
+					}
+				},
+				{
+					"name": "DELETE - Remover situação de produto",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/product-situations/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["product-situations", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "GET - Listar todos os produtos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "GET - Visualizar produto por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/products/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST - Cadastrar produto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Notebook Dell\",\n    \"productSituationId\": 1,\n    \"productCategoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "PUT - Atualizar produto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Notebook Dell Atualizado\",\n    \"productSituationId\": 1,\n    \"productCategoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/products/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "1"]
+						}
+					}
+				},
+				{
+					"name": "DELETE - Remover produto",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/products/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["products", "1"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
