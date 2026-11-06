@@ -230,3 +230,6 @@ Instalar os tipos do nodemailer.
 ```
 npm install --save-dev @types/nodemailer
 ```
+
+....
+realizando testes
